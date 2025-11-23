@@ -9,10 +9,18 @@ import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { VegetableDetailDialog } from './VegetableDetailDialog';
 import { Vegetable } from '@/types/garden';
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 export function VegetablePalette({ onSelect }: { onSelect?: () => void }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [detailVegetable, setDetailVegetable] = useState<Vegetable | null>(null);
   const { selectedVegetableId, selectVegetable, deselectVegetable } = useGardenStore();
+
+  // Determine default season based on current month (0-indexed)
+  // Feb(1) - Jul(6): Spring/Summer
+  // Aug(7) - Jan(0): Autumn/Winter
+  const currentMonth = new Date().getMonth();
+  const defaultTab = (currentMonth >= 1 && currentMonth <= 6) ? 'spring-summer' : 'autumn-winter';
 
   const toggleSelection = (id: string) => {
     if (selectedVegetableId === id) {
@@ -21,6 +29,38 @@ export function VegetablePalette({ onSelect }: { onSelect?: () => void }) {
       selectVegetable(id);
       onSelect?.(); // Notify parent
     }
+  };
+
+  const renderVegetableList = (filterSeason: 'all' | 'spring-summer' | 'autumn-winter') => {
+    const filteredVegetables = VEGETABLES.filter(v => 
+      filterSeason === 'all' ? true : v.season === filterSeason
+    );
+
+    return (
+      <div className={cn(
+        "grid grid-cols-2 gap-3 transition-all duration-300 overflow-hidden",
+        !isExpanded && "max-h-[320px] md:max-h-none" // Increased height for better visibility with tabs
+      )}>
+        {filteredVegetables.map((veg) => (
+          <DraggableVegetable 
+            key={veg.id} 
+            vegetable={veg} 
+            isSelected={selectedVegetableId === veg.id}
+            onClick={() => {
+              if (selectedVegetableId === veg.id) {
+                setDetailVegetable(veg);
+              } else {
+                toggleSelection(veg.id);
+              }
+            }}
+            onInfoClick={(e) => {
+              e.stopPropagation();
+              setDetailVegetable(veg);
+            }}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -34,31 +74,23 @@ export function VegetablePalette({ onSelect }: { onSelect?: () => void }) {
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
       </div>
-      
-      <div className={cn(
-        "grid grid-cols-2 gap-3 transition-all duration-300 overflow-hidden",
-        !isExpanded && "max-h-[160px] md:max-h-none" // Show roughly 2 rows on mobile when collapsed
-      )}>
-        {VEGETABLES.map((veg) => (
-          <DraggableVegetable 
-            key={veg.id} 
-            vegetable={veg} 
-            isSelected={selectedVegetableId === veg.id}
-            onClick={() => {
-              if (selectedVegetableId === veg.id) {
-                // If already selected, show details
-                setDetailVegetable(veg);
-              } else {
-                toggleSelection(veg.id);
-              }
-            }}
-            onInfoClick={(e) => {
-              e.stopPropagation();
-              setDetailVegetable(veg);
-            }}
-          />
-        ))}
-      </div>
+
+      <Tabs defaultValue={defaultTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsTrigger value="spring-summer">春夏</TabsTrigger>
+          <TabsTrigger value="autumn-winter">秋冬</TabsTrigger>
+          <TabsTrigger value="all">全て</TabsTrigger>
+        </TabsList>
+        <TabsContent value="spring-summer" className="mt-0">
+          {renderVegetableList('spring-summer')}
+        </TabsContent>
+        <TabsContent value="autumn-winter" className="mt-0">
+          {renderVegetableList('autumn-winter')}
+        </TabsContent>
+        <TabsContent value="all" className="mt-0">
+          {renderVegetableList('all')}
+        </TabsContent>
+      </Tabs>
       
       {!isExpanded && (
         <div className="md:hidden text-center mt-2 text-xs text-stone-500">
