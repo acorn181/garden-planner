@@ -40,7 +40,21 @@ export interface GardenState {
   currentPlanId: string | null;
   selectedVegetableId: VegetableId | null;
   isLayoutMode: boolean;
+
+  // Plan Actions
+  addPlan: (title: string, width: number, height: number, gridCellSizeCm?: number) => void;
+  updatePlan: (id: string, data: Partial<GardenPlan>) => void;
+  deletePlan: (id: string) => void;
+  duplicatePlan: (id: string) => void;
+  setCurrentPlan: (id: string) => void;
+  updateCurrentPlanTitle: (title: string) => void;
+
+  // Editor Actions
+  placeVegetable: (cellId: string, vegetableId: VegetableId) => void;
+  removeVegetable: (cellId: string) => void;
   moveVegetable: (fromCellId: string, toCellId: string) => void;
+  
+  // UI Actions
   selectVegetable: (id: VegetableId) => void;
   deselectVegetable: () => void;
   toggleLayoutMode: () => void;
