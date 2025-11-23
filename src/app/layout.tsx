@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   // TODO: 本番環境のURLに合わせて変更してください
-  metadataBase: new URL('https://garden-planner-itxh78fn8-acorn181s-projects.vercel.app'),
+  metadataBase: new URL('https://garden-planner-omega.vercel.app'),
   title: {
     template: '%s | Garden Planner',
     default: 'Garden Planner - 家庭菜園シミュレーター',
