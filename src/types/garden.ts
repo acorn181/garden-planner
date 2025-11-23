@@ -1,10 +1,13 @@
 export type VegetableId = string;
 
+export type SeasonType = 'spring-summer' | 'autumn-winter' | 'all';
+
 export interface Vegetable {
   id: VegetableId;
   name: string;
   icon: string; // Emoji or icon name
   color: string; // Tailwind class safe background color
+  season: SeasonType;
   goodCompanions: VegetableId[];
   badCompanions: VegetableId[];
   description: string;
